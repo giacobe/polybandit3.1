@@ -50,7 +50,7 @@ levelsetname="bandit"
 
 # Call each level's install script
 
-echo -n Building 10 levels [
+echo -n Building 13 levels [
 for levelnumber in 1 2 3 4 5 6 7 8 9 10 11 12 13
 #for levelnumber in 1 2 3 4 5 6 
 do

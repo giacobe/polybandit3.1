@@ -1,12 +1,11 @@
 #!/bin/sh
 PS1='\W$ '
-cd ~
+cd "$HOME" || exit 1
 clear
-echo "********************************************************************************"
-echo "*  Welcome to The PolyLinux Game. Follow the instructions in the README.txt    *"
-echo "*  file to figure out the flag to complete the level.                          *"
-echo "*  To change to the next level, issue the command 'nextlevel'.                 *"
-echo "*  To change to the previous level, issue the command 'prevlevel'.             *"
-echo "********************************************************************************"
-echo "* Level      : " $USER
+echo "************************************************************************"
+echo "* PolyBandit: Linux command-line practice                              *"
+echo "* Read README.txt, solve the level, and save the case-sensitive answer.*"
+echo "* Move between levels with nextlevel and prevlevel.                    *"
+echo "************************************************************************"
+echo "* Level: $USER"
 cat README.txt

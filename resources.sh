@@ -1,138 +1,82 @@
 #!/bin/sh
 
-# Function to generate a file containing printable ASCII characters from the base64 character set
-generate_base64_file() {
-	# Check if the correct number of arguments is provided
-	if [ $# -ne 2 ]; then
-		echo "Usage: generate_base64_file <output_file> <file_size>"
-		return 1
-	fi
+die() { echo "ERROR: $*" >&2; exit 1; }
+command_required() { command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"; }
 
-	local output_file="$1"
-	local file_size="$2"
-
-	# Define the base64 character set
-	base64_chars="/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-
-	# Generate the base64 characters and save them to the output file
-	generate_base64_chars() {
-		local base64_length=${#base64_chars}
-
-		while [ "$file_size" -gt 0 ]; do
-		  local index=$((RANDOM % base64_length))
-		  local char="${base64_chars:index:1}"
-		  printf "%s" "$char"
-		  file_size=$((file_size - 1))
-		done
-	}
-
-	generate_base64_chars "$file_size" > "$output_file"
-
-	#  echo "File $output_file created with $file_size base64 characters."
+normalize_email() {
+    printf '%s' "$1" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]'
 }
 
-	#example Call the function with arguments
-	#generate_base64_file "output.txt" 1000
-
-
-create_binary_non_printable_file() {
-	# Check if the correct number of arguments is provided
-	if [ $# -ne 2 ]; then
-	  echo "Usage: $0 <output_file> <file_size>"
-	  exit 1
-	fi
-
-	output_file="$1"
-	file_size="$2"
-
-	# Generate non-printable ASCII characters using /dev/urandom and dd
-	generate_non_printable_chars() {
-	  # Use /dev/urandom to generate random bytes
-	  dd if=/dev/urandom bs=1 count="$1" status=none | tr -d -c '\000-\037\177-\377'
-	}
-
-	# Generate the non-printable ASCII characters and save them to the output file
-	generate_non_printable_chars "$file_size" > "$output_file"
-
-	#echo "File $output_file created with $file_size non-printable ASCII characters."
-
-	}
-
-
-# Function to write binary values to a file
-write_binary_values() {
-    local output_file="$1"
-    shift  # Remove the first argument (the output file)
-
-    # Use printf to write the binary values to the file
-    printf "%b" "$@" > "$output_file"
+validate_email() {
+    value=$1
+    [ -n "$value" ] || return 1
+    [ "${#value}" -le 254 ] || return 1
+    case "$value" in *[!abcdefghijklmnopqrstuvwxyz0123456789.!#$%\&\'*+/=?^_\`{|}~@-]*|*' '*|*'@@'*|@*|*@|*.*@*.*@*) return 1 ;; esac
+    local_part=${value%%@*}
+    domain_part=${value#*@}
+    [ "$local_part" != "$value" ] || return 1
+    case "$domain_part" in *'@'*|.*|*.|*..*|-*|*-) return 1 ;; esac
+    case "$domain_part" in *.*) return 0 ;; *) return 1 ;; esac
 }
 
-# Example usage:
-# output_file="output.bin"
-# Define binary values as arguments to the function
-# write_binary_values "$output_file" "\x48" "\x65" "\x6C" "\x6C" "\x6F"
+validate_iso_date() {
+    case "$1" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 
-# Function to format input string into a block
-format_block() {
-    local input="$1"
-    local width=70
-    local block=""
-    local divline="" 
-    local divlinelen=$(($width + 3))
-    count=width
-    borderchar="*"
-    while [ ${#divline} -lt $divlinelen ]; do
-         divline="$divline$borderchar"
+exercise_code_from_date() {
+    decimal=$(printf '%s' "$1" | tr -d '-')
+    printf '%X\n' "$decimal"
+}
+
+derive_hex() { printf '%s:%s' "$level_HASH" "$1" | sha256sum | awk '{print $1}'; }
+derive_indexed_hex() { printf '%s:%s:%s' "$level_HASH" "$1" "$2" | sha256sum | awk '{print $1}'; }
+
+hex_byte() {
+    hex=$1; index=$2; start=$((index * 2 + 1))
+    pair=$(printf '%s' "$hex" | cut -c "$start-$((start + 1))")
+    printf '%d\n' "$((0x$pair))"
+}
+
+answer_token() {
+    length=$1
+    printf '%s' "$(derive_hex answer)" | base64 | tr -d '\r\n=' | tr '+/' '-_' | cut -c "1-$length"
+}
+
+write_readme() {
+    instructions=$1
+    {
+        echo "Exercise code: $EXERCISE_CODE"
+        echo "Participant: $USER_ID"
+        echo "Level: $levelToBuild"
+        echo "************************************************************************"
+        printf '%s\n' "$instructions"
+        echo "************************************************************************"
+        echo "Save the exercise code and this level's answer for the submission form."
+    } > "$LEVEL_HOME/README.txt"
+}
+
+record_answer() {
+    printf '%s\n' "$1" > "$ANSWER_DIR/$levelToBuild"
+    chmod 600 "$ANSWER_DIR/$levelToBuild"
+}
+
+finish_level() {
+    [ "${SKIP_OWNERSHIP:-0}" -eq 1 ] && return
+    chown -R "$levelToBuild:$levelToBuild" "$LEVEL_HOME"
+    chmod -R o-rwx "$LEVEL_HOME"
+}
+
+make_binary_file() {
+    path=$1; size=$2; label=$3
+    : > "$path"
+    round=0
+    while [ "$(wc -c < "$path")" -lt "$size" ]; do
+        derive_indexed_hex "$label" "$round" | xxd -r -p >> "$path"
+        round=$((round + 1))
     done
-    block="$divline\n"
-    while [ -n "$input" ]; do
-        if [ ${#input} -le $width ]; then
-            # This is the last line
-            while [ ${#input} -lt $width ]; do
-                input="$input "
-            done
-            # If the remaining text fits within the width, add it as is
-            block="$block$borderchar $input"
-            block="$block$borderchar\n"
-            break
-        else
-            # This is every other line other than the last one.
-
-            local line="${input:0:$width}"
-
-            # Find the last space within the width
-            last_space=$(expr "$line" : '.* ')
-
-            # If no space was found, just cut at the width
-            if [ -z "$last_space" ]; then
-                last_space=$width
-            fi
-
-            line="${line:0:$last_space}"
-            input="${input:$last_space}"
-
-            while [ ${#input} -lt $width ]; do
-                input="$input "
-            done
-
-            # Append the line to the block with leading/trailing asterisks
-            while [ ${#line} -lt $width ]; do
-                line="$line "
-            done
-            block="$block$borderchar $line"
-            block="$block$borderchar\n"
-        fi
-    done
-    block="$block$divline\n"
-    echo -e "$block"
+    head -c "$size" "$path" > "$path.tmp"
+    mv "$path.tmp" "$path"
 }
-
-# Example usage:
-#original_string="This is a very long string that will be formatted into a block. It should preserve word boundaries and be 70 characters wide. This is a test of the formatting function."
-#formatted_block=$(format_to_block "$original_string")
-#
-#echo "Original String:"
-#echo "$original_string"
-#echo "Formatted Block:"
-#echo -e "$formatted_block"

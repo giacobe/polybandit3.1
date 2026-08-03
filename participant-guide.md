@@ -31,6 +31,8 @@ prevlevel
 
 Navigation is not gated. You may revisit any generated level without solving the previous one.
 
+Levels are prepared concurrently after you confirm your email address. `bandit1` is complete before your first learner shell opens. If you move faster than a later level is prepared, `nextlevel` or `prevlevel` will ask you to wait briefly and try again. A level is never opened with partially generated evidence.
+
 ## Answer rules
 
 Every answer contains exactly 20 Base64url characters. Answers are case-sensitive. Copy the answer without surrounding spaces or explanatory words. Submit all thirteen answers together through the external answer form.
@@ -110,3 +112,5 @@ Work in a temporary directory. Reverse the hex dump first, then use `file` after
 ## Troubleshooting
 
 If an answer is rejected, verify its case and remove surrounding spaces. Confirm that the submitted email matches the normalized address shown in the VM and that the exercise code matches the README. Reloading the VM rebuilds the exercise, so save answers outside the VM before reloading.
+
+If a navigation command says that the destination is still being prepared, wait a moment and run the command again. If it reports that preparation failed, restart the VM; a persistent failure should be reported to the lab administrator.

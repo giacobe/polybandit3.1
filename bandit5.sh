@@ -7,7 +7,11 @@ target=$(( $(hex_byte "$(derive_hex layout)" 0) % 10 ))
 i=0
 while [ "$i" -lt 10 ]; do
     path="$LEVEL_HOME/inhere/-file$(printf '%02d' "$i")"
-    if [ "$i" -eq "$target" ]; then printf '%s\n' "$answer" > "$path"; else make_binary_file "$path" "$((96 + i))" "noise-$i"; fi
+    if [ "$i" -eq "$target" ]; then
+        printf '%s\n' "$answer" > "$path"
+    else
+        cp "$FIXTURE_DIR/binary-151.bin" "$path"
+    fi
     i=$((i + 1))
 done
 write_readme "The answer is stored in the only human-readable file in the inhere directory. Use file to classify the candidates.

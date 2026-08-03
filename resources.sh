@@ -32,7 +32,6 @@ exercise_code_from_date() {
 }
 
 derive_hex() { printf '%s:%s' "$level_HASH" "$1" | sha256sum | awk '{print $1}'; }
-derive_indexed_hex() { printf '%s:%s:%s' "$level_HASH" "$1" "$2" | sha256sum | awk '{print $1}'; }
 
 hex_byte() {
     hex=$1; index=$2; start=$((index * 2 + 1))
@@ -69,14 +68,19 @@ finish_level() {
     chmod -R o-rwx "$LEVEL_HOME"
 }
 
-make_binary_file() {
-    path=$1; size=$2; label=$3
-    : > "$path"
-    round=0
-    while [ "$(wc -c < "$path")" -lt "$size" ]; do
-        derive_indexed_hex "$label" "$round" | xxd -r -p >> "$path"
-        round=$((round + 1))
-    done
-    head -c "$size" "$path" > "$path.tmp"
-    mv "$path.tmp" "$path"
+prepare_fixture_cache() {
+    destination=$1
+    case "$destination" in
+        /tmp/polybandit-fixtures|*/polybandit-fixtures) ;;
+        *) die "refusing unexpected fixture cache: $destination" ;;
+    esac
+    rm -rf "$destination"
+    mkdir -p "$destination"
+    base64 -d "$INSTALL_ROOT/assets/binary-noise-1024.b64" > "$destination/binary-1024.bin"
+    head -c 151 "$destination/binary-1024.bin" > "$destination/binary-151.bin"
+    head -c 177 "$destination/binary-1024.bin" > "$destination/binary-177.bin"
+    head -c 213 "$destination/binary-1024.bin" > "$destination/binary-213.bin"
+    head -c 900 "$destination/binary-1024.bin" > "$destination/binary-900.bin"
+    cp "$INSTALL_ROOT/assets/text-records.txt" "$destination/text-records.txt"
+    awk '{print $2}' "$INSTALL_ROOT/assets/text-records.txt" > "$destination/repeated-lines.txt"
 }

@@ -20,11 +20,13 @@ generate_case() {
     ANSWER_DIR="$case_root/answers"
     HOME_ROOT="$case_root/home"
     SYSTEM_EVIDENCE_ROOT="$case_root/evidence"
+    FIXTURE_DIR="$case_root/polybandit-fixtures"
     SKIP_OWNERSHIP=1
     export USER_ID currentDate EXERCISE_CODE SYSTEM_PASSWORD LEVEL_PASSWORD_ROOT \
-        ANSWER_DIR HOME_ROOT SYSTEM_EVIDENCE_ROOT SKIP_OWNERSHIP
+        ANSWER_DIR HOME_ROOT SYSTEM_EVIDENCE_ROOT FIXTURE_DIR SKIP_OWNERSHIP
     rm -rf "$case_root"
     mkdir -p "$ANSWER_DIR" "$HOME_ROOT" "$SYSTEM_EVIDENCE_ROOT"
+    prepare_fixture_cache "$FIXTURE_DIR"
     levelnumber=1
     while [ "$levelnumber" -le 13 ]; do
         levelToBuild="bandit$levelnumber"
@@ -55,6 +57,7 @@ SYSTEM_EVIDENCE_ROOT="$test_root/case-a/evidence" VERIFY_SKIP_OWNERSHIP=1 \
     sh "$INSTALL_ROOT/verify.sh"
 
 echo "test level invariants"
+[ "$(wc -c < "$test_root/case-a/polybandit-fixtures/binary-1024.bin")" -eq 1024 ]
 [ "$(find "$test_root/case-a/home/bandit5/inhere" -type f | wc -l | tr -d ' ')" -eq 10 ]
 [ "$(find "$test_root/case-a/home/bandit6/inhere" -type f -size 205c ! -perm /111 | wc -l | tr -d ' ')" -eq 1 ]
 [ "$(find "$test_root/case-a/evidence" -type f -size 21c | wc -l | tr -d ' ')" -eq 1 ]

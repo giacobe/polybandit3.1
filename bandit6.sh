@@ -16,7 +16,12 @@ while [ "$d" -le 21 ]; do
             printf '%s\n' "$answer" > "$path"
             awk 'BEGIN { for (i=0;i<184;i++) printf " " }' >> "$path"
         else
-            make_binary_file "$path" "$((130 + (d + f) % 60))" "noise-$d-$f"
+            case $(((d + f) % 3)) in
+                0) fixture=binary-151.bin ;;
+                1) fixture=binary-177.bin ;;
+                2) fixture=binary-213.bin ;;
+            esac
+            cp "$FIXTURE_DIR/$fixture" "$path"
             if [ $(((d + f) % 2)) -eq 0 ]; then chmod 700 "$path"; fi
         fi
         f=$((f + 1))

@@ -1,4 +1,13 @@
 #!/bin/sh
 number=$(printf '%s' "$USER" | sed 's/[^0-9]//g')
 if [ -z "$number" ] || [ "$number" -le 1 ]; then echo "You are already at the lowest level."; exit 1; fi
-exec su - "bandit$((number - 1))"
+target="bandit$((number - 1))"
+if [ -f "/var/run/polybandit/failed/$target" ]; then
+    echo "$target could not be prepared. Ask the lab administrator to inspect the build log."
+    exit 1
+fi
+if [ ! -f "/var/run/polybandit/ready/$target" ]; then
+    echo "$target is still being prepared. Wait a moment, then run prevlevel again."
+    exit 1
+fi
+exec su - "$target"

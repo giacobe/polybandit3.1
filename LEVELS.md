@@ -18,4 +18,4 @@ Every level produces one exact, case-sensitive, 20-character Base64url answer. T
 | 12 | ROT13 | Decoded text ends with the answer. |
 | 13 | Hexdump and compression | Reversing the deterministic archive chain yields text ending with the answer. |
 
-All distractors are derived independently with labeled hashes. Correct evidence is selected before noise, and generators construct uniqueness rather than relying on chance.
+Answers and target locations are derived independently with labeled hashes. Non-answer binary and text noise may come from invariant packaged fixtures. Correct evidence is selected before noise, and generators construct uniqueness rather than relying on chance.

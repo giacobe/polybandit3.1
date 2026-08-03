@@ -42,3 +42,11 @@ SYSTEM_PASSWORD=exercisePassword LEVEL_PASSWORD_ROOT=levelPassword \
 ```
 
 Expected answers are kept under `/var/lib/polybandit/answers` for development verification. Participants submit all thirteen answers through the external grader; no local `checklevel` command is installed.
+
+## Build performance and readiness
+
+Static fixture assets under `assets/` provide non-answer binary noise and text corpora for Bandits 5, 6, 8, 9, and 10. The installer decodes a temporary fixture cache once rather than fabricating hundreds of small records through separate hash processes.
+
+The installer creates all thirteen accounts first, then builds levels through a bounded queue. `MAX_PARALLEL` defaults to `3` and accepts values from `1` through `4`. Each generator writes to `/home/.polybandit-build-banditN`; the completed home is atomically renamed to `/home/banditN` before `/var/run/polybandit/ready/banditN` is created. Failures create matching markers under `/var/run/polybandit/failed` and details are written to `/var/log/polybandit-build.log`.
+
+Interactive installation waits only for `bandit1`. Later levels continue preparing after the first learner shell opens. Noninteractive `--no-login` installation waits for the full queue so automated verification sees a complete exercise.

@@ -50,3 +50,26 @@ Static fixture assets under `assets/` provide non-answer binary noise and text c
 The installer creates all thirteen accounts first, then builds levels through a bounded queue. `MAX_PARALLEL` defaults to `3` and accepts values from `1` through `4`. Each generator writes to `/home/.polybandit-build-banditN`; the completed home is atomically renamed to `/home/banditN` before `/var/run/polybandit/ready/banditN` is created. Failures create matching markers under `/var/run/polybandit/failed` and details are written to `/var/log/polybandit-build.log`.
 
 Interactive installation waits only for `bandit1`. Later levels continue preparing after the first learner shell opens. Noninteractive `--no-login` installation waits for the full queue so automated verification sees a complete exercise.
+
+## Build the browser VM
+
+PolyBandit uses the `basic-compression` configuration from
+[`giacobe/buildroot-builder2`](https://github.com/giacobe/buildroot-builder2),
+validated with Buildroot `2025.02.15`. Its exercise data intentionally remains
+close to OverTheWire Bandit and is excluded from themed-data modernization.
+
+```sh
+git clone https://github.com/giacobe/buildroot-builder2.git
+cd buildroot-builder2
+BUILDROOT_VERSION=2025.02.15 scripts/01-setup-buildroot.sh
+scripts/02-build-baseline.sh --config basic-compression
+scripts/03-package-payload.sh \
+  --repo https://github.com/giacobe/polybandit3.1.git \
+  --ref main \
+  --baseline artifacts/basic-compression-<timestamp> \
+  --output artifacts/polybandit3.1 \
+  --output-prefix polybandit3.1
+```
+
+Replace `<timestamp>` with the stage-2 artifact directory. Review the manifest
+and boot-test the exact generated image pair in v86 before publishing.

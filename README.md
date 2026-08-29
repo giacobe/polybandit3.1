@@ -73,3 +73,7 @@ scripts/03-package-payload.sh \
 
 Replace `<timestamp>` with the stage-2 artifact directory. Review the manifest
 and boot-test the exact generated image pair in v86 before publishing.
+
+## License
+
+Licensed under the GNU General Public License v3.0. See `LICENSE`.

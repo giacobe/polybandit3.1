@@ -71,7 +71,10 @@ prepare_fixture_cache() {
     esac
     rm -rf "$destination"
     mkdir -p "$destination"
-    base64 -d "$INSTALL_ROOT/assets/binary-noise-1024.b64" > "$destination/binary-1024.bin"
+    # BusyBox base64 variants differ in how strictly they accept wrapped input.
+    # Decode one canonical, unwrapped byte stream for reproducible fixtures.
+    tr -d '\r\n' < "$INSTALL_ROOT/assets/binary-noise-1024.b64" |
+        base64 -d > "$destination/binary-1024.bin"
     head -c 151 "$destination/binary-1024.bin" > "$destination/binary-151.bin"
     head -c 177 "$destination/binary-1024.bin" > "$destination/binary-177.bin"
     head -c 213 "$destination/binary-1024.bin" > "$destination/binary-213.bin"

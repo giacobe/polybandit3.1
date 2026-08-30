@@ -30,5 +30,4 @@ while [ "$d" -le 21 ]; do
 done
 write_readme "The answer is in the only human-readable regular file below inhere that is exactly 205 bytes and is not executable.
 Answer format: the first line of that file: exactly 20 Base64url characters. Case matters."
-record_answer "$answer"
 finish_level

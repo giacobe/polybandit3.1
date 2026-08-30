@@ -3,8 +3,10 @@ set -eu
 
 cd "$(dirname "$0")"
 INSTALL_ROOT=$(pwd)
+LAB_ID=polybandit
 export INSTALL_ROOT
 . "$INSTALL_ROOT/resources.sh"
+. "$INSTALL_ROOT/polylinux-common.sh"
 
 SYSTEM_PASSWORD=${SYSTEM_PASSWORD:-systemPassword}
 LEVEL_PASSWORD_ROOT=${LEVEL_PASSWORD_ROOT:-levelPassword}
@@ -51,21 +53,19 @@ for asset in binary-noise-1024.b64 text-records.txt; do
     [ -f "$INSTALL_ROOT/assets/$asset" ] || die "required fixture asset not found: assets/$asset"
 done
 
-mkdir -p /home /var/lib/polybandit/answers /var/lib/polybandit/evidence \
+mkdir -p /home /var/lib/polybandit/evidence \
     /var/run/polybandit/ready /var/run/polybandit/failed
 chmod 755 /var/lib/polybandit /var/lib/polybandit/evidence
-chmod 700 /var/lib/polybandit/answers
 chmod 755 /var/run/polybandit /var/run/polybandit/ready /var/run/polybandit/failed
-ANSWER_DIR=/var/lib/polybandit/answers
 SYSTEM_EVIDENCE_ROOT=/var/lib/polybandit/evidence
 STATUS_ROOT=/var/run/polybandit
 READY_DIR=$STATUS_ROOT/ready
 FAILED_DIR=$STATUS_ROOT/failed
 FIXTURE_DIR=/tmp/polybandit-fixtures
 BUILD_LOG=/var/log/polybandit-build.log
-MAX_PARALLEL=${MAX_PARALLEL:-3}
-case "$MAX_PARALLEL" in 1|2|3|4) ;; *) die "MAX_PARALLEL must be between 1 and 4" ;; esac
-export ANSWER_DIR SYSTEM_EVIDENCE_ROOT STATUS_ROOT READY_DIR FAILED_DIR FIXTURE_DIR
+MAX_PARALLEL=${MAX_PARALLEL:-10}
+case "$MAX_PARALLEL" in 1|2|3|4|5|6|7|8|9|10) ;; *) die "MAX_PARALLEL must be between 1 and 10" ;; esac
+export SYSTEM_EVIDENCE_ROOT STATUS_ROOT READY_DIR FAILED_DIR FIXTURE_DIR LAB_ID
 
 rm -f "$READY_DIR"/bandit* "$FAILED_DIR"/bandit* "$STATUS_ROOT/all-ready" "$STATUS_ROOT/build-failed"
 : > "$BUILD_LOG"
@@ -95,6 +95,10 @@ while [ "$levelnumber" -le 13 ]; do
         *) die "refusing to reset unexpected homes: $final_home $staging_home" ;;
     esac
     rm -f "$SYSTEM_EVIDENCE_ROOT/$levelToBuild.password"
+    mkdir -p "$final_home"
+    write_pending_readme "$final_home"
+    chown -R "$levelToBuild:$levelToBuild" "$final_home"
+    chmod 700 "$final_home"
     levelnumber=$((levelnumber + 1))
 done
 
@@ -104,17 +108,23 @@ build_one_level() (
     final_home="/home/$levelToBuild"
     LEVEL_HOME="/home/.polybandit-build-$levelToBuild"
     levelPassword="${LEVEL_PASSWORD_ROOT}${levelnumber}"
-    level_HASH=$(printf '%s%s%s%s' "$USER_ID" "$currentDate" \
-        "$SYSTEM_PASSWORD" "$levelPassword" | sha256sum | awk '{print $1}')
+    level_HASH=$(level_seed_v1)
     export levelnumber levelToBuild LEVEL_HOME levelPassword level_HASH
     rm -rf "$LEVEL_HOME"
     mkdir -p "$LEVEL_HOME"
-    if sh "$INSTALL_ROOT/$levelToBuild.sh" && mv "$LEVEL_HOME" "$final_home"; then
+    if sh "$INSTALL_ROOT/$levelToBuild.sh"; then
+        saved_readme="/home/.README-$levelToBuild.$$"
+        mv "$LEVEL_HOME/README.txt" "$saved_readme"
+        cp -a "$LEVEL_HOME/." "$final_home/"
+        mv "$saved_readme" "$final_home/README.txt"
+        rm -rf "$LEVEL_HOME"
+        chown -R "$levelToBuild:$levelToBuild" "$final_home"
         touch "$READY_DIR/$levelToBuild"
         echo "$levelToBuild ready"
         exit 0
     fi
     rm -rf "$LEVEL_HOME"
+    write_failed_readme "$final_home" "$levelToBuild"
     touch "$FAILED_DIR/$levelToBuild"
     echo "$levelToBuild failed" >&2
     exit 1

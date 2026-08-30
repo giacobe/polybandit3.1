@@ -16,5 +16,4 @@ while [ "$i" -lt 10 ]; do
 done
 write_readme "The answer is stored in the only human-readable file in the inhere directory. Use file to classify the candidates.
 Answer format: exactly 20 Base64url characters. Case matters; do not add spaces."
-record_answer "$answer"
 finish_level

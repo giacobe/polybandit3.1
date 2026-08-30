@@ -9,5 +9,4 @@ awk -v location="$location" -v answer="$answer" '
 ' "$FIXTURE_DIR/text-records.txt" > "$LEVEL_HOME/data.txt"
 write_readme "The answer is stored in data.txt next to the word millionth.
 Answer format: the 20-character value following millionth. Case matters."
-record_answer "$answer"
 finish_level

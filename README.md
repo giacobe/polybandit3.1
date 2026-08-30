@@ -41,7 +41,7 @@ SYSTEM_PASSWORD=exercisePassword LEVEL_PASSWORD_ROOT=levelPassword \
 ./install.sh --non-interactive --no-login
 ```
 
-Expected answers are kept under `/var/lib/polybandit/answers` for development verification. Participants submit all thirteen answers through the external grader; no local `checklevel` command is installed.
+The VM does not store an answer key or provide a local answer checker. Participants submit all thirteen answers through the external grader.
 
 ## Build performance and readiness
 
@@ -77,3 +77,9 @@ and boot-test the exact generated image pair in v86 before publishing.
 ## License
 
 Licensed under the GNU General Public License v3.0. See `LICENSE`.
+
+## Standard runtime contract
+
+The current release uses the reversible PolyBandit exercise code, the versioned `seed-v1` deterministic seed, ten concurrent level generators, staged `README.txt` readiness, unrestricted `nextlevel`/`prevlevel` navigation, and no client-side answer store or checker. See `lab.json` for the authoritative level count, theme policy, Buildroot configuration, and browser artifact names.
+
+Do not rebuild the assigned Buildroot baseline merely to package this lab. Package the repository payload into the configuration named by `buildroot_configuration`, preserve the baseline kernel, and publish the resulting `packaged.bzImage` and `packaged.rootfs.cpio.gz`.

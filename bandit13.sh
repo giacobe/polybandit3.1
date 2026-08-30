@@ -21,5 +21,4 @@ xxd data2.bin > "$LEVEL_HOME/data.txt"
 cd /; rm -rf "$work"
 write_readme "The answer is stored in data.txt, a hexdump of a file that has been repeatedly compressed and archived. Work in a temporary directory, reverse the hexdump, and use file after each step.
 Answer format: exactly 20 Base64url characters. Case matters; submit only the final value after the words is."
-record_answer "$answer"
 finish_level

@@ -7,5 +7,4 @@ echo "* PolyBandit: Linux command-line practice                              *"
 echo "* Read README.txt, solve the level, and save the case-sensitive answer.*"
 echo "* Move between levels with nextlevel and prevlevel.                    *"
 echo "************************************************************************"
-echo "* Level: $USER"
 cat README.txt

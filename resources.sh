@@ -46,15 +46,18 @@ answer_token() {
 
 write_readme() {
     instructions=$1
+    raw="$LEVEL_HOME/.README.raw.$$"
     {
         echo "Exercise code: $EXERCISE_CODE"
         echo "Participant: $USER_ID"
         echo "Level: $levelToBuild"
-        echo "************************************************************************"
+        echo
         printf '%s\n' "$instructions"
-        echo "************************************************************************"
+        echo
         echo "Save the exercise code and this level's answer for the submission form."
-    } > "$LEVEL_HOME/README.txt"
+    } > "$raw"
+    render_box_file "$raw" "$LEVEL_HOME/README.txt"
+    rm -f "$raw"
 }
 
 finish_level() {

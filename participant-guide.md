@@ -2,7 +2,7 @@
 title: "PolyBandit: Linux Command-Line Practice"
 short_title: "PolyBandit"
 panel_title: "Learning Path"
-form_url: ""
+form_url: "https://forms.office.com/Pages/ResponsePage.aspx?id=RY30fNs9iUOpwcEVUm61LvTNagO6dAdDlZnocMnGFFZUNjFDODBYU0dMODNIRVBIQU1XR1A1VDNTTC4u"
 
 ---
 

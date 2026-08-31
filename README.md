@@ -41,7 +41,7 @@ SYSTEM_PASSWORD=exercisePassword LEVEL_PASSWORD_ROOT=levelPassword \
 ./install.sh --non-interactive --no-login
 ```
 
-The VM does not store an answer key or provide a local answer checker. Participants submit all thirteen answers through the external grader.
+The VM does not store an answer key or provide a local answer checker. Participants submit all thirteen answers through the external answer form.
 
 ## Build performance and readiness
 

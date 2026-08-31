@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. "$INSTALL_ROOT/polylinux-common.sh"
+
 die() { echo "ERROR: $*" >&2; exit 1; }
 command_required() { command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"; }
 
@@ -48,10 +50,11 @@ write_readme() {
     instructions=$1
     raw="$LEVEL_HOME/.README.raw.$$"
     {
-        echo "Exercise code: $EXERCISE_CODE"
-        echo "Participant: $USER_ID"
         echo "Level: $levelToBuild"
-        echo
+        echo "PolyLinux: PolyBandit"
+        echo "Participant: $USER_ID"
+        echo "Exercise code: $EXERCISE_CODE"
+        echo '__POLYLINUX_DIVIDER__'
         printf '%s\n' "$instructions"
         echo
         echo "Save the exercise code and this level's answer for the submission form."

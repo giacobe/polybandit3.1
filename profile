@@ -2,9 +2,11 @@
 PS1='\W$ '
 cd "$HOME" || exit 1
 clear
-echo "************************************************************************"
-echo "* PolyBandit: Linux command-line practice                              *"
-echo "* Read README.txt, solve the level, and save the case-sensitive answer.*"
-echo "* Move between levels with nextlevel and prevlevel.                    *"
-echo "************************************************************************"
+box_line() { printf '* %-36.36s *\n' "$1"; }
+echo '****************************************'
+box_line 'PolyLinux: PolyBandit'
+box_line 'Read README.txt to begin.'
+box_line 'Use the exercise grading form.'
+box_line 'Use nextlevel and prevlevel.'
+echo '****************************************'
 cat README.txt

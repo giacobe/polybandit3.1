@@ -54,7 +54,7 @@ for asset in binary-noise-1024.b64 text-records.txt; do
 done
 
 mkdir -p /home /var/lib/polybandit/evidence \
-    /var/run/polybandit/ready /var/run/polybandit/failed
+    /var/run/polybandit/ready /var/run/polybandit/failed /etc/profile.d
 chmod 755 /var/lib/polybandit /var/lib/polybandit/evidence
 chmod 755 /var/run/polybandit /var/run/polybandit/ready /var/run/polybandit/failed
 SYSTEM_EVIDENCE_ROOT=/var/lib/polybandit/evidence
@@ -71,6 +71,8 @@ rm -f "$READY_DIR"/bandit* "$FAILED_DIR"/bandit* "$STATUS_ROOT/all-ready" "$STAT
 : > "$BUILD_LOG"
 prepare_fixture_cache "$FIXTURE_DIR"
 
+cp "$INSTALL_ROOT/polylinux-colors.sh" /etc/profile.d/polylinux-colors.sh
+chmod 644 /etc/profile.d/polylinux-colors.sh
 cp "$INSTALL_ROOT/profile" /etc/profile
 for command_file in nextlevel prevlevel; do
     cp "$INSTALL_ROOT/$command_file" "/usr/bin/$command_file"
